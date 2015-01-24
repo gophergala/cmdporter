@@ -17,12 +17,39 @@ x load commands params from file
 */
 
 import (
-	"github.com/codegangsta/martini-contrib/render"
-	"github.com/go-martini/martini"
+	"bytes"
 	"github.com/gophergala/cmdporter/vp/nec"
 	"github.com/tarm/goserial"
+	"io/ioutil"
 	"log"
+	"net/http"
+	"path"
+	"text/template"
 )
+
+func Render(w http.ResponseWriter, view string, content interface{}) {
+	layout, err := ioutil.ReadFile(path.Join("views", "layout.html"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	page, err := ioutil.ReadFile(path.Join("views", view))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	layoutTemplate := template.New("layout")
+	pageTemplate := template.New("page")
+
+	template.Must(layoutTemplate.Parse(string(layout)))
+	template.Must(pageTemplate.Parse(string(page)))
+
+	pageBuffer := new(bytes.Buffer)
+	pageTemplate.Execute(pageBuffer, content)
+
+	layoutContent := map[string]interface{}{"View": string(pageBuffer.Bytes())}
+	layoutTemplate.Execute(w, layoutContent)
+
+}
 
 func main() {
 
@@ -47,19 +74,15 @@ func main() {
 	log.Println(n)
 
 	// Start Http Server
-	m := martini.Classic()
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
-	m.Use(render.Renderer(render.Options{
-		Directory:  "views",
-		Layout:     "layout",
-		Extensions: []string{".html"},
-	}))
+		content := map[string]interface{}{"Slogan": "Gopher is coming"}
 
-	m.Get("/", func(r render.Render) {
-		content := map[string]interface{}{"slogan": "Gopher is coming"}
-
-		r.HTML(200, "index", content)
+		Render(w, "index.html", content)
 	})
 
-	m.Run()
+	fs := http.FileServer(http.Dir("assets"))
+	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
+
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
