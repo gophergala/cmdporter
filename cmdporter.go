@@ -17,10 +17,11 @@ x load commands params from file
 */
 
 import (
+	"github.com/codegangsta/martini-contrib/render"
+	"github.com/go-martini/martini"
+	"github.com/gophergala/cmdporter/vp/nec"
 	"github.com/tarm/goserial"
 	"log"
-
-	"cmdporter/vp/nec"
 )
 
 func main() {
@@ -44,4 +45,21 @@ func main() {
 	}
 
 	log.Println(n)
+
+	// Start Http Server
+	m := martini.Classic()
+
+	m.Use(render.Renderer(render.Options{
+		Directory:  "views",
+		Layout:     "layout",
+		Extensions: []string{".html"},
+	}))
+
+	m.Get("/", func(r render.Render) {
+		content := map[string]interface{}{"slogan": "Gopher is coming"}
+
+		r.HTML(200, "index", content)
+	})
+
+	m.Run()
 }
