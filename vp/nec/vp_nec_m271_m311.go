@@ -1,0 +1,16 @@
+package nec
+
+// Note : user manual advises to lower baud rate to 9600 for long cables
+
+type nec_m271_m311 struct {
+	PowerOn, PowerOff, SoundMuteOn, SoundMuteOff []byte
+}
+
+var (
+	Nec_m271_m311 nec_m271_m311 = nec_m271_m311{
+		PowerOn:      []byte{0x02, 0x00, 0x00, 0x00, 0x00, 0x02},
+		PowerOff:     []byte{0x02, 0x01, 0x00, 0x00, 0x00, 0x03},
+		SoundMuteOn:  []byte{0x02, 0x12, 0x00, 0x00, 0x00, 0x14},
+		SoundMuteOff: []byte{0x02, 0x13, 0x00, 0x00, 0x00, 0x15},
+	}
+)
