@@ -27,6 +27,8 @@ import (
 	"text/template"
 )
 
+var SerialPortStatus bool = false
+
 func Render(w http.ResponseWriter, view string, content interface{}) {
 	layout, err := ioutil.ReadFile(path.Join("views", "layout.html"))
 	if err != nil {
@@ -62,23 +64,56 @@ func main() {
 	s, err := serial.OpenPort(c)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+
+	} else {
+		SerialPortStatus = true
+		n, err := s.Write(nec.Nec_m271_m311.PowerOn)
+
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		log.Println(n)
 	}
 
-	n, err := s.Write(nec.Nec_m271_m311.PowerOn)
-
-	if err != nil {
-		log.Fatal(err)
+	devices := []string{
+		"Nec mg271wg",
+		"Arduino One",
 	}
-
-	log.Println(n)
 
 	// Start Http Server
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
-		content := map[string]interface{}{"Slogan": "Gopher is coming"}
+		content := map[string]interface{}{
+			"SerialPortStatus": SerialPortStatus,
+			"Devices":          devices,
+		}
 
 		Render(w, "index.html", content)
+	})
+
+	http.HandleFunc("/devices", func(w http.ResponseWriter, r *http.Request) {
+		content := map[string]interface{}{
+			"Devices": devices,
+		}
+
+		Render(w, "devices.html", content)
+	})
+
+	http.HandleFunc("/device/", func(w http.ResponseWriter, r *http.Request) {
+		content := map[string]interface{}{
+			"Name": r.URL.Path[8:],
+		}
+
+		Render(w, "device.html", content)
+	})
+
+	http.HandleFunc("/cmd", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+
+		}
+		w.WriteHeader(http.StatusNotFound)
 	})
 
 	fs := http.FileServer(http.Dir("assets"))
