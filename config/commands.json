@@ -1,4 +1,6 @@
 {
+	"name"	: "nec_m271_m311",
+
 	"commands":[
 			{
 				"CommandName":"PowerOn",
