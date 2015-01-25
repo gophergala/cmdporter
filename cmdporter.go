@@ -86,7 +86,7 @@ func main() {
 
 		content := map[string]interface{}{
 			"SerialPortStatus": SerialPortStatus,
-			"Device":           g_Device.GetName(),
+			"Device":           nec.Nec_m271_m311.GetName(),
 		}
 
 		Render(w, "index.html", content)
@@ -103,8 +103,9 @@ func main() {
 			}
 
 			// Search for submited command on device
-			if ok := g_Device.Commands[value.Name]; ok != nil {
-				fmt.Printf("Found command : %s => %v\n", value.Name, value.Bytes)
+			if ok := nec.Nec_m271_m311.Commands[req.Command]; ok != nil {
+				fmt.Printf("Found command : %s => %v\n", req.Command, nec.Nec_m271_m311.Commands[req.Command])
+				g_Device.DoCmd(req.Command)
 				res.Data = "Success"
 				jsonRes, _ := json.Marshal(res)
 				fmt.Fprintf(w, "%s", string(jsonRes))
