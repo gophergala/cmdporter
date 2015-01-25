@@ -1,11 +1,13 @@
-//package nec
-package main
+package nec
+
+//package main
 
 // Note : user manual advises to lower baud rate to 9600 for long cables
 import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/tarm/goserial"
 	"io/ioutil"
 	"os"
 )
@@ -26,8 +28,27 @@ type JSONCommand struct {
 	Bytes            []byte
 }
 
-//func init() {
-func main() {
+func send() {
+	s, err := serial.OpenPort(c)
+
+	if err != nil {
+		log.Println(err)
+
+	} else {
+		SerialPortStatus = true
+		n, err := s.Write(nec.Nec_m271_m311.PowerOn)
+
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		log.Println(n)
+	}
+
+}
+
+func init() {
+	//func main() {
 
 	//MAKE MAP
 	Nec_m271_m311.Commands = make(map[string][]byte)
