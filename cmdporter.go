@@ -4,7 +4,7 @@ package main
 
 cmdporter : a wifi intercom to talk to various devices
 
-By Fred Ménez & Gaël Reyrol
+By Fred Ménez, Gaël Reyrol, Thierry Vo
 
 ==================================================================================================== */
 
@@ -18,22 +18,45 @@ x load commands params from file
 
 import (
 	"bytes"
+<<<<<<< HEAD
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/gophergala/cmdporter/vp/nec"
+=======
+	"encoding/json"
+	"fmt"
+>>>>>>> e7bc7230bb514cdc1c29caab20ed9cf7fcd0aada
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path"
 	"text/template"
+
+	"github.com/gophergala/cmdporter/vp/nec"
 )
 
 var (
 	SerialPortStatus bool = false
 	g_Device         Device
 )
+
+<<<<<<< HEAD
+var (
+	SerialPortStatus bool = false
+	g_Device         Device
+)
+=======
+type CmdRequest struct {
+	Command string `json:"command"`
+}
+
+type CmdResponse struct {
+	Data  interface{} `json:"data"`
+	Error interface{} `json:"error"`
+}
+>>>>>>> e7bc7230bb514cdc1c29caab20ed9cf7fcd0aada
 
 func Render(w http.ResponseWriter, view string, content interface{}) {
 	layout, err := ioutil.ReadFile(path.Join("views", "layout.html"))
@@ -56,11 +79,22 @@ func Render(w http.ResponseWriter, view string, content interface{}) {
 
 	layoutContent := map[string]interface{}{"View": string(pageBuffer.Bytes())}
 	layoutTemplate.Execute(w, layoutContent)
+}
 
+func ParseBody(r *http.Request) []byte {
+	body, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return body
 }
 
 func main() {
+	g_Device = nec.Nec_m271_m311
 
+<<<<<<< HEAD
 	g_Device = nec.Nec_m271_m311
 	LoadCommands(g_Device)
 
@@ -68,37 +102,46 @@ func main() {
 		"Nec mg271wg",
 		"Arduino One",
 	}
+=======
+	nec.Nec_m271_m311.Load()
+>>>>>>> e7bc7230bb514cdc1c29caab20ed9cf7fcd0aada
 
 	// Start Http Server
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
 		content := map[string]interface{}{
 			"SerialPortStatus": SerialPortStatus,
-			"Devices":          devices,
+			"Device":           nec.Nec_m271_m311.GetName(),
 		}
 
 		Render(w, "index.html", content)
 	})
 
-	http.HandleFunc("/devices", func(w http.ResponseWriter, r *http.Request) {
-		content := map[string]interface{}{
-			"Devices": devices,
-		}
-
-		Render(w, "devices.html", content)
-	})
-
-	http.HandleFunc("/device/", func(w http.ResponseWriter, r *http.Request) {
-		content := map[string]interface{}{
-			"Name": r.URL.Path[8:],
-		}
-
-		Render(w, "device.html", content)
-	})
-
 	http.HandleFunc("/cmd", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
+			req := CmdRequest{}
+			res := CmdResponse{nil, nil}
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
+			if err := json.Unmarshal(ParseBody(r), &req); err != nil {
+				fmt.Println(err)
+			}
+
+			// Search for submited command on device
+			if ok := nec.Nec_m271_m311.Commands[req.Command]; ok != nil {
+				fmt.Printf("Found command : %s => %v\n", req.Command, nec.Nec_m271_m311.Commands[req.Command])
+				g_Device.DoCmd(req.Command)
+				res.Data = "Success"
+				jsonRes, _ := json.Marshal(res)
+				fmt.Fprintf(w, "%s", string(jsonRes))
+				return
+			}
+
+			// Command not found in device commands list
+			res.Error = "CommandNotFound"
+			jsonRes, _ := json.Marshal(res)
+			fmt.Fprintf(w, "%s", string(jsonRes))
+			return
 		}
 		w.WriteHeader(http.StatusNotFound)
 	})
