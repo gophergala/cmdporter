@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 )
 
@@ -17,39 +18,27 @@ type JSONCommand struct {
 	Bytes            []byte
 }
 
-// type BytesContainer struct {
-// 	StringCodedBytes []string `json:"bytes"`
-// 	Bytes            []byte
-// }
-
 func main() {
-
-	json_string :=
-		`{
-			"commands": [
-			{
-				"CommandName":"PowerOn",
-		 		"bytes": [ "0x31", "0x02","0x02", "0x00", "0x00", "0x00", "0x00", "0x02" ]
-			},
-			{
-				"CommandName":"PowerOff",
-		 		"bytes": ["0x02", "0x01", "0x00", "0x00", "0x00", "0x03"]
-			}
-			]
-		}`
 
 	var err error
 
-	//res := &JSONCommands{}
+	//IMPORT FROM A JSON FILE
+	file, err := ioutil.ReadFile("./commands.json")
+	if err != nil {
+		fmt.Printf("File error: %v\n", err)
+		os.Exit(-1)
+	}
+	json_string := string(file)
 
+	//TRANSFORM THE JSON TO STUCT DATA
 	var res = JSONCommands{}
-
 	err = json.Unmarshal([]byte(json_string), &res)
 	if err != nil {
 		fmt.Println("err :", err)
 		os.Exit(-1)
 	}
 
+	//CONVERT THE STRING DATA TO BYTE DATA, USING FOR SEND INSTRUCTIONS TO HARDWARE DEVICES
 	for key, value := range res.Commands {
 		command := value
 		for _, cvalue := range command.StringCodedBytes {
@@ -60,5 +49,14 @@ func main() {
 			res.Commands[key].Bytes = append(res.Commands[key].Bytes, chex[0])
 		}
 	}
+
+	//CREATE A MAPPING FOR THE COMMANDS
+	nec_m271_m311_Commands := make(map[string][]byte)
+
+	for _, value2 := range res.Commands {
+		command := value2
+		nec_m271_m311_Commands[command.CommandName] = command.Bytes
+	}
+	fmt.Println(nec_m271_m311_Commands["SoundMuteOn"])
 
 }
