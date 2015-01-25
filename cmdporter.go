@@ -18,8 +18,6 @@ x load commands params from file
 
 import (
 	"bytes"
-	"github.com/gophergala/cmdporter/vp/nec"
-	"github.com/tarm/goserial"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -54,28 +52,6 @@ func Render(w http.ResponseWriter, view string, content interface{}) {
 }
 
 func main() {
-
-	//On Linux
-	c := &serial.Config{Name: "/dev/ttyUSB0", Baud: 9600}
-
-	//On Macos
-	//c := &serial.Config{Name: "/dev/cu.PL2303-00002014", Baud: 9600}
-
-	s, err := serial.OpenPort(c)
-
-	if err != nil {
-		log.Println(err)
-
-	} else {
-		SerialPortStatus = true
-		n, err := s.Write(nec.Nec_m271_m311.PowerOn)
-
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		log.Println(n)
-	}
 
 	devices := []string{
 		"Nec mg271wg",
