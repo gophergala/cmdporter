@@ -1,5 +1,7 @@
 package nec
 
+//package main
+
 // Note : user manual advises to lower baud rate to 9600 for long cables
 import (
 	"encoding/hex"
@@ -27,28 +29,6 @@ type JSONCommand struct {
 	StringCodedBytes []string `json:"bytes"`
 	Bytes            []byte
 }
-
-/*func send() {
-	fmt.Println("IN SEND FUNCTION")
-
-	//On Linux
-	c := &serial.Config{Name: "/dev/ttyUSB0", Baud: 9600}
-	//On Macos
-	//c := &serial.Config{Name: "/dev/cu.PL2303-00002014", Baud: 9600}
-	s, err := serial.OpenPort(c)
-	if err != nil {
-		log.Println(err)
-	} else {
-		SerialPortStatus = true
-		//n, err := s.Write(nec.Nec_m271_m311.PowerOn)
-		n, err := s.Write(Nec_m271_m311.Commands["PowerOn"])
-		if err != nil {
-			log.Fatalln(err)
-		}
-		log.Println(n)
-	}
-
-}*/
 
 func init() {
 
