@@ -4,7 +4,7 @@ package main
 
 cmdporter : a wifi intercom to talk to various devices
 
-By Fred Ménez & Gaël Reyrol
+By Fred Ménez, Gaël Reyrol, Thierry Vo
 
 ==================================================================================================== */
 
@@ -23,6 +23,8 @@ import (
 	"net/http"
 	"path"
 	"text/template"
+
+	"github.com/gophergala/cmdporter/vp/nec"
 )
 
 var SerialPortStatus bool = false
@@ -48,10 +50,11 @@ func Render(w http.ResponseWriter, view string, content interface{}) {
 
 	layoutContent := map[string]interface{}{"View": string(pageBuffer.Bytes())}
 	layoutTemplate.Execute(w, layoutContent)
-
 }
 
 func main() {
+
+	nec.Nec_m271_m311.Load()
 
 	devices := []string{
 		"Nec mg271wg",
@@ -95,5 +98,6 @@ func main() {
 	fs := http.FileServer(http.Dir("assets"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
 
+	log.Println("Waiting for http connections on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
