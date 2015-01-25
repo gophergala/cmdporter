@@ -11,16 +11,22 @@ import (
 	"os"
 )
 
-var Nec_m271_m311 nec_m271_m311
-
-var SerialPortStatus bool = false
-
 type nec_m271_m311 struct {
 	ModelName string
 
 	Commands map[string][]byte //PowerOn, PowerOff, SoundMuteOn, SoundMuteOff, ...
 
 }
+
+func (o nec_m271_m311) GetName() string {
+	return o.ModelName
+}
+
+func (o nec_m271_m311) DoCmd(sCmdName string) {
+	// TODO
+}
+
+var Nec_m271_m311 nec_m271_m311
 
 type JSONCommand struct {
 	CommandName      string

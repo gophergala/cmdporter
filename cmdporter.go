@@ -27,7 +27,11 @@ import (
 	"github.com/gophergala/cmdporter/vp/nec"
 )
 
-var SerialPortStatus bool = false
+var (
+	SerialPortStatus bool = false
+
+	g_Device Device
+)
 
 func Render(w http.ResponseWriter, view string, content interface{}) {
 	layout, err := ioutil.ReadFile(path.Join("views", "layout.html"))
@@ -53,6 +57,8 @@ func Render(w http.ResponseWriter, view string, content interface{}) {
 }
 
 func main() {
+
+	g_Device = nec.Nec_m271_m311
 
 	nec.Nec_m271_m311.Load()
 
@@ -98,6 +104,7 @@ func main() {
 	fs := http.FileServer(http.Dir("assets"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
 
+	log.Println("Running for device", g_Device.GetName())
 	log.Println("Waiting for http connections on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
