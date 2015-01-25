@@ -22,6 +22,10 @@ func (o nec_m271_m311) GetName() string {
 	return o.ModelName
 }
 
+func (o nec_m271_m311) RegisterCmd(sCmdName string, Bytes []byte) {
+	o.Commands[sCmdName] = Bytes
+}
+
 func (o nec_m271_m311) DoCmd(sCmdName string) {
 	// TODO
 }
