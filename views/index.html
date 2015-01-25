@@ -1,4 +1,5 @@
 Serial Port : {{ if .SerialPortStatus}}<span class="label label-success">Connected</span>{{ else }}<span class="label label-danger">Disconnected</span>{{ end }}
+{{ .Device }}
 {{ with .Device }}
 <h3>Device {{ .Name }}:</h3>
 	<div id="message" class="alert alert-danger" role="alert"></div>

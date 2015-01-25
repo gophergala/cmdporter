@@ -18,23 +18,16 @@ x load commands params from file
 
 import (
 	"bytes"
-<<<<<<< HEAD
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/gophergala/cmdporter/vp/nec"
-=======
-	"encoding/json"
-	"fmt"
->>>>>>> e7bc7230bb514cdc1c29caab20ed9cf7fcd0aada
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path"
 	"text/template"
-
-	"github.com/gophergala/cmdporter/vp/nec"
 )
 
 var (
@@ -42,12 +35,6 @@ var (
 	g_Device         Device
 )
 
-<<<<<<< HEAD
-var (
-	SerialPortStatus bool = false
-	g_Device         Device
-)
-=======
 type CmdRequest struct {
 	Command string `json:"command"`
 }
@@ -56,7 +43,6 @@ type CmdResponse struct {
 	Data  interface{} `json:"data"`
 	Error interface{} `json:"error"`
 }
->>>>>>> e7bc7230bb514cdc1c29caab20ed9cf7fcd0aada
 
 func Render(w http.ResponseWriter, view string, content interface{}) {
 	layout, err := ioutil.ReadFile(path.Join("views", "layout.html"))
@@ -93,25 +79,14 @@ func ParseBody(r *http.Request) []byte {
 
 func main() {
 	g_Device = nec.Nec_m271_m311
-
-<<<<<<< HEAD
-	g_Device = nec.Nec_m271_m311
 	LoadCommands(g_Device)
-
-	devices := []string{
-		"Nec mg271wg",
-		"Arduino One",
-	}
-=======
-	nec.Nec_m271_m311.Load()
->>>>>>> e7bc7230bb514cdc1c29caab20ed9cf7fcd0aada
 
 	// Start Http Server
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
 		content := map[string]interface{}{
 			"SerialPortStatus": SerialPortStatus,
-			"Device":           nec.Nec_m271_m311.GetName(),
+			"Device":           g_Device.GetName(),
 		}
 
 		Render(w, "index.html", content)
@@ -128,8 +103,9 @@ func main() {
 			}
 
 			// Search for submited command on device
-			if ok := nec.Nec_m271_m311.Commands[req.Command]; ok != nil {
-				fmt.Printf("Found command : %s => %v\n", req.Command, nec.Nec_m271_m311.Commands[req.Command])
+			commands := g_Device.GetCommandsList()
+			if ok := commands[req.Command]; ok != nil {
+				fmt.Printf("Found command : %s => %v\n", req.Command, commands[req.Command])
 				g_Device.DoCmd(req.Command)
 				res.Data = "Success"
 				jsonRes, _ := json.Marshal(res)
