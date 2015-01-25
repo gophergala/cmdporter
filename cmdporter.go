@@ -4,7 +4,7 @@ package main
 
 cmdporter : a wifi intercom to talk to various devices
 
-By Fred Ménez & Gaël Reyrol
+By Fred Ménez, Gaël Reyrol, Thierry Vo
 
 ==================================================================================================== */
 
@@ -64,7 +64,6 @@ func Render(w http.ResponseWriter, view string, content interface{}) {
 
 	layoutContent := map[string]interface{}{"View": string(pageBuffer.Bytes())}
 	layoutTemplate.Execute(w, layoutContent)
-
 }
 
 func ParseBody(r *http.Request) []byte {
@@ -124,5 +123,7 @@ func main() {
 	fs := http.FileServer(http.Dir("assets"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
 
+	log.Println("Running for device", g_Device.GetName())
+	log.Println("Waiting for http connections on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
